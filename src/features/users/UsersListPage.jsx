@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "../../shared/hooks/useAuth";
-import { ROUTES, API_ENDPOINTS } from "../../shared/constants";
+import { ROUTES } from "../../shared/constants";
+import usersService from "./services/users.service";
 
 const UsersListPage = () => {
   const [users, setUsers] = useState([]);
@@ -17,15 +18,7 @@ const UsersListPage = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch(API_ENDPOINTS.USERS, {
-        credentials: "include",
-      });
-      
-      if (!response.ok) {
-        throw new Error("Failed to fetch users");
-      }
-      
-      const data = await response.json();
+      const data = await usersService.getUsers();
       setUsers(data.users);
     } catch {
       setError("Failed to load users");
@@ -42,14 +35,7 @@ const UsersListPage = () => {
     setDeleteLoading(userId);
     
     try {
-      const response = await fetch(API_ENDPOINTS.USER_BY_ID(userId), {
-        method: "DELETE",
-        credentials: "include",
-      });
-      
-      if (!response.ok) {
-        throw new Error("Failed to delete user");
-      }
+      await usersService.deleteUser(userId);
       
       // Remove user from list
       setUsers(prevUsers => prevUsers.filter(u => u.id !== userId));

@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "../../shared/hooks/useAuth";
-import { ROUTES, API_ENDPOINTS } from "../../shared/constants";
+import { ROUTES } from "../../shared/constants";
+import usersService from "./services/users.service";
 
 const UserDetailPage = () => {
   const { id } = useParams();
@@ -19,15 +20,7 @@ const UserDetailPage = () => {
 
   const fetchUser = async () => {
     try {
-      const response = await fetch(API_ENDPOINTS.USER_BY_ID(id), {
-        credentials: "include",
-      });
-      
-      if (!response.ok) {
-        throw new Error("Failed to fetch user");
-      }
-      
-      const data = await response.json();
+      const data = await usersService.getUser(id);
       setUser(data.user);
     } catch (err) {
       setError("Failed to load user");
@@ -44,14 +37,7 @@ const UserDetailPage = () => {
     setDeleteLoading(true);
     
     try {
-      const response = await fetch(API_ENDPOINTS.USER_BY_ID(id), {
-        method: "DELETE",
-        credentials: "include",
-      });
-      
-      if (!response.ok) {
-        throw new Error("Failed to delete user");
-      }
+      await usersService.deleteUser(id);
       
       navigate(ROUTES.USERS);
     } catch (err) {

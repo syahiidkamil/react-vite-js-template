@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams, Link } from "react-router";
 import { Button } from "@/components/ui/button";
-import { ROUTES, API_ENDPOINTS } from "../../shared/constants";
+import { ROUTES } from "../../shared/constants";
+import usersService from "./services/users.service";
 
 const UserEditPage = () => {
   const { id } = useParams();
@@ -23,15 +24,7 @@ const UserEditPage = () => {
 
   const fetchUser = async () => {
     try {
-      const response = await fetch(API_ENDPOINTS.USER_BY_ID(id), {
-        credentials: "include",
-      });
-      
-      if (!response.ok) {
-        throw new Error("Failed to fetch user");
-      }
-      
-      const data = await response.json();
+      const data = await usersService.getUser(id);
       setFormData({
         name: data.user.name,
         email: data.user.email,
@@ -82,19 +75,7 @@ const UserEditPage = () => {
         updateData.password = newPassword;
       }
 
-      const response = await fetch(API_ENDPOINTS.USER_BY_ID(id), {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(updateData),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || "Failed to update user");
-      }
+      await usersService.updateUser(id, updateData);
 
       navigate(ROUTES.USERS);
     } catch (err) {

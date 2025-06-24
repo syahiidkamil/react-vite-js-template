@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { VALIDATION, USER_ROLES } from '../constants/validation.constants';
+import { VALIDATION, USER_ROLES } from '../../../shared/constants/validation.constants';
 
 // Base user schema
 export const userBaseSchema = z.object({
@@ -40,6 +40,8 @@ export const updateUserSchema = userBaseSchema.extend({
 // Transform empty string to undefined for optional fields
 export const updateUserSchemaWithTransform = updateUserSchema.transform((data) => {
   if (data.password === '') {
+    // Destructure to exclude password when empty
+    // eslint-disable-next-line no-unused-vars
     const { password, ...rest } = data;
     return rest;
   }

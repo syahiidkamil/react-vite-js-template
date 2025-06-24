@@ -4,8 +4,9 @@ import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { FormInput, FormSelect } from "../../shared/components/forms";
-import { createUserSchema } from "../../shared/schemas";
-import { ROUTES, API_ENDPOINTS, USER_ROLES } from "../../shared/constants";
+import { createUserSchema } from "./schemas/user.schema";
+import { ROUTES, USER_ROLES } from "../../shared/constants";
+import usersService from "./services/users.service";
 
 const UserCreatePage = () => {
   const navigate = useNavigate();
@@ -24,25 +25,12 @@ const UserCreatePage = () => {
   
   const onSubmit = async (data) => {
     try {
-      const response = await fetch(API_ENDPOINTS.USERS, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create user");
-      }
-
+      await usersService.createUser(data);
       navigate(ROUTES.USERS);
     } catch (err) {
       setError("root", {
         type: "manual",
-        message: err.message,
+        message: err.response?.data?.message || err.message || "Failed to create user",
       });
     }
   };

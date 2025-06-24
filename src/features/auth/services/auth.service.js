@@ -1,4 +1,4 @@
-import api from './api';
+import api from '../../../shared/services/api';
 
 class AuthService {
   async login(email, password) {

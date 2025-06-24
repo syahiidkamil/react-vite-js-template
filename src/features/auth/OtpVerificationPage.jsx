@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router";
 import { Button } from "@/components/ui/button";
-import authService from "../../shared/services/auth.service";
+import authService from "./services/auth.service";
 
 const OtpVerificationPage = () => {
   const [otp, setOtp] = useState("");

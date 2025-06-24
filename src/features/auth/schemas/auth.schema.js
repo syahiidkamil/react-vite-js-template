@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { VALIDATION } from '../constants/validation.constants';
+import { VALIDATION } from '../../../shared/constants/validation.constants';
 
 // Login schema
 export const loginSchema = z.object({

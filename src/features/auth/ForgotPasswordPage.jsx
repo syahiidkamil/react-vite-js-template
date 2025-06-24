@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router";
 import { Button } from "@/components/ui/button";
-import authService from "../../shared/services/auth.service";
+import authService from "./services/auth.service";
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
