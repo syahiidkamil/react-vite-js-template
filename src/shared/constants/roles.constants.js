@@ -10,22 +10,6 @@ export const ROLE_DISPLAY_NAMES = {
   [USER_ROLES.USER]: 'User',
 };
 
-// Role permissions (can be extended as needed)
-export const ROLE_PERMISSIONS = {
-  [USER_ROLES.ADMIN]: {
-    canManageUsers: true,
-    canViewAllData: true,
-    canEditSettings: true,
-    canDeleteData: true,
-  },
-  [USER_ROLES.USER]: {
-    canManageUsers: false,
-    canViewAllData: false,
-    canEditSettings: false,
-    canDeleteData: false,
-  },
-};
-
 // Role colors for UI styling
 export const ROLE_COLORS = {
   [USER_ROLES.ADMIN]: {
@@ -40,9 +24,16 @@ export const ROLE_COLORS = {
   },
 };
 
-// Helper function to check if a role has a specific permission
-export const hasPermission = (role, permission) => {
-  return ROLE_PERMISSIONS[role]?.[permission] || false;
+// Menu items visibility based on roles
+export const MENU_ROLE_ACCESS = {
+  dashboard: [USER_ROLES.ADMIN, USER_ROLES.USER], // All roles can see dashboard
+  users: [USER_ROLES.ADMIN], // Only admin can see users menu
+};
+
+// Helper function to check if a role can access a menu item
+export const canAccessMenu = (menuKey, userRole) => {
+  const allowedRoles = MENU_ROLE_ACCESS[menuKey];
+  return allowedRoles ? allowedRoles.includes(userRole) : false;
 };
 
 // Helper function to get role display name

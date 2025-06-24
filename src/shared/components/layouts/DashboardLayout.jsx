@@ -3,14 +3,16 @@ import { Link, Outlet, useLocation } from "react-router";
 import { useAuth } from "../../../features/auth/hooks/useAuth";
 import Navigation from "./Navigation";
 import { SIDEBAR, ROUTES } from "../../constants";
+import { canAccessMenu } from "../../constants/roles.constants";
 
 const DashboardLayout = () => {
   const { user } = useAuth();
   const location = useLocation();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  const menuItems = [
+  const allMenuItems = [
     {
+      key: "dashboard",
       title: "Dashboard",
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -20,6 +22,7 @@ const DashboardLayout = () => {
       path: ROUTES.DASHBOARD,
     },
     {
+      key: "users",
       title: "Users",
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -29,6 +32,11 @@ const DashboardLayout = () => {
       path: ROUTES.USERS,
     },
   ];
+
+  // Filter menu items based on user role
+  const menuItems = allMenuItems.filter(item => 
+    canAccessMenu(item.key, user?.role || 'user')
+  );
 
   const isActive = (path) => location.pathname.startsWith(path);
   

@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { promises as fs } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { authenticate } from '../middleware/auth.middleware.js';
+import { adminOnly } from '../middleware/auth.middleware.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -31,8 +31,8 @@ const writeDB = async (data) => {
   await fs.writeFile(USERS_DB, JSON.stringify(data, null, 2));
 };
 
-// Get all users (protected)
-router.get('/', authenticate, async (req, res) => {
+// Get all users (admin only)
+router.get('/', adminOnly, async (req, res) => {
   try {
     await mockDelay();
     
@@ -49,8 +49,8 @@ router.get('/', authenticate, async (req, res) => {
   }
 });
 
-// Get single user (protected)
-router.get('/:id', authenticate, async (req, res) => {
+// Get single user (admin only)
+router.get('/:id', adminOnly, async (req, res) => {
   try {
     await mockDelay();
     
@@ -72,8 +72,8 @@ router.get('/:id', authenticate, async (req, res) => {
   }
 });
 
-// Create new user (protected - admin only in real app)
-router.post('/', authenticate, async (req, res) => {
+// Create new user (admin only)
+router.post('/', adminOnly, async (req, res) => {
   try {
     await mockDelay();
     
@@ -116,8 +116,8 @@ router.post('/', authenticate, async (req, res) => {
   }
 });
 
-// Update user (protected)
-router.put('/:id', authenticate, async (req, res) => {
+// Update user (admin only)
+router.put('/:id', adminOnly, async (req, res) => {
   try {
     await mockDelay();
     
@@ -161,8 +161,8 @@ router.put('/:id', authenticate, async (req, res) => {
   }
 });
 
-// Delete user (protected)
-router.delete('/:id', authenticate, async (req, res) => {
+// Delete user (admin only)
+router.delete('/:id', adminOnly, async (req, res) => {
   try {
     await mockDelay();
     
