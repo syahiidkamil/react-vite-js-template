@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { FormInput } from "../../shared/components/forms";
 import { otpSchema } from "./schemas/auth.schema";
-import authService from "./services/auth.service";
+import AuthService from "./services/AuthService";
 import { ROUTES } from "../../shared/constants";
 
 const OtpVerificationPage = () => {
@@ -45,7 +45,7 @@ const OtpVerificationPage = () => {
   
   const onSubmit = async (data) => {
     try {
-      const response = await authService.verifyOtp(email, data.otp);
+      const response = await AuthService.verifyOtp(email, data.otp);
       
       // Navigate to reset password page with reset token
       navigate(ROUTES.RESET_PASSWORD, { 
@@ -66,7 +66,7 @@ const OtpVerificationPage = () => {
     setResending(true);
     
     try {
-      await authService.forgotPassword(email);
+      await AuthService.forgotPassword(email);
       alert("New OTP sent to your email!");
     } catch (err) {
       setError("root", {

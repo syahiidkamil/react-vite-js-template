@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { AuthContext } from "./AuthContext";
-import authService from "../../features/auth/services/auth.service";
+import AuthService from "../../features/auth/services/AuthService";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      const userData = await authService.getCurrentUser();
+      const userData = await AuthService.getCurrentUser();
       setUser(userData);
     } catch (error) {
       // User is not authenticated - this is normal for first load
@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await authService.login(email, password);
+      const response = await AuthService.login(email, password);
       setUser(response.user);
       return { success: true };
     } catch (error) {
@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (email, password, name) => {
     try {
-      const response = await authService.register(email, password, name);
+      const response = await AuthService.register(email, password, name);
       setUser(response.user);
       return { success: true };
     } catch (error) {
@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await authService.logout();
+      await AuthService.logout();
       setUser(null);
     } catch (error) {
       console.error('Logout error:', error);

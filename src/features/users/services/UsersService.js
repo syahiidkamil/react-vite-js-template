@@ -1,6 +1,6 @@
 import api from '../../../shared/services/api';
 
-class UsersService {
+class UsersServiceClass {
   async getUsers() {
     const response = await api.get('/users');
     return response.data;
@@ -27,4 +27,10 @@ class UsersService {
   }
 }
 
-export default new UsersService();
+// Create singleton instance
+const UsersService = new UsersServiceClass();
+
+// Freeze the instance to prevent modifications
+Object.freeze(UsersService);
+
+export default UsersService;

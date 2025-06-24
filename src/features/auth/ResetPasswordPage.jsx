@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { FormInput } from "../../shared/components/forms";
 import { resetPasswordSchema } from "./schemas/auth.schema";
-import authService from "./services/auth.service";
+import AuthService from "./services/AuthService";
 import { ROUTES } from "../../shared/constants";
 
 const ResetPasswordPage = () => {
@@ -40,7 +40,7 @@ const ResetPasswordPage = () => {
   
   const onSubmit = async (data) => {
     try {
-      await authService.resetPassword(email, resetToken, data.password);
+      await AuthService.resetPassword(email, resetToken, data.password);
       
       // Show success message and redirect to login
       alert("Password reset successful! Please login with your new password.");

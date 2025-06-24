@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "../../shared/hooks/useAuth";
 import { ROUTES } from "../../shared/constants";
-import usersService from "./services/users.service";
+import UsersService from "./services/UsersService";
 
 const UsersListPage = () => {
   const [users, setUsers] = useState([]);
@@ -18,7 +18,7 @@ const UsersListPage = () => {
 
   const fetchUsers = async () => {
     try {
-      const data = await usersService.getUsers();
+      const data = await UsersService.getUsers();
       setUsers(data.users);
     } catch {
       setError("Failed to load users");
@@ -35,7 +35,7 @@ const UsersListPage = () => {
     setDeleteLoading(userId);
     
     try {
-      await usersService.deleteUser(userId);
+      await UsersService.deleteUser(userId);
       
       // Remove user from list
       setUsers(prevUsers => prevUsers.filter(u => u.id !== userId));

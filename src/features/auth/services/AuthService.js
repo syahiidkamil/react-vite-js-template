@@ -1,6 +1,6 @@
 import api from '../../../shared/services/api';
 
-class AuthService {
+class AuthServiceClass {
   async login(email, password) {
     const response = await api.post('/auth/login', { email, password });
     return response.data;
@@ -46,4 +46,10 @@ class AuthService {
   }
 }
 
-export default new AuthService();
+// Create singleton instance
+const AuthService = new AuthServiceClass();
+
+// Freeze the instance to prevent modifications
+Object.freeze(AuthService);
+
+export default AuthService;

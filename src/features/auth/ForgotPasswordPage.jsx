@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { FormInput } from "../../shared/components/forms";
 import { forgotPasswordSchema } from "./schemas/auth.schema";
-import authService from "./services/auth.service";
+import AuthService from "./services/AuthService";
 import { ROUTES } from "../../shared/constants";
 
 const ForgotPasswordPage = () => {
@@ -25,7 +25,7 @@ const ForgotPasswordPage = () => {
     setSuccessMessage("");
     
     try {
-      const response = await authService.forgotPassword(data.email);
+      const response = await AuthService.forgotPassword(data.email);
       setSuccessMessage(response.message || "OTP sent successfully!");
       
       // Navigate to OTP verification page after 2 seconds

@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "../../shared/hooks/useAuth";
 import { ROUTES } from "../../shared/constants";
-import usersService from "./services/users.service";
+import UsersService from "./services/UsersService";
 
 const UserDetailPage = () => {
   const { id } = useParams();
@@ -20,7 +20,7 @@ const UserDetailPage = () => {
 
   const fetchUser = async () => {
     try {
-      const data = await usersService.getUser(id);
+      const data = await UsersService.getUser(id);
       setUser(data.user);
     } catch (err) {
       setError("Failed to load user");
@@ -37,7 +37,7 @@ const UserDetailPage = () => {
     setDeleteLoading(true);
     
     try {
-      await usersService.deleteUser(id);
+      await UsersService.deleteUser(id);
       
       navigate(ROUTES.USERS);
     } catch (err) {

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { FormInput, FormSelect } from "../../shared/components/forms";
 import { createUserSchema } from "./schemas/user.schema";
 import { ROUTES, USER_ROLES } from "../../shared/constants";
-import usersService from "./services/users.service";
+import UsersService from "./services/UsersService";
 
 const UserCreatePage = () => {
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ const UserCreatePage = () => {
   
   const onSubmit = async (data) => {
     try {
-      await usersService.createUser(data);
+      await UsersService.createUser(data);
       navigate(ROUTES.USERS);
     } catch (err) {
       setError("root", {

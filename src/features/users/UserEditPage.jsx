@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { FormInput, FormSelect, FormCheckbox } from "../../shared/components/forms";
 import { updateUserSchema } from "./schemas/user.schema";
 import { ROUTES, USER_ROLES } from "../../shared/constants";
-import usersService from "./services/users.service";
+import UsersService from "./services/UsersService";
 
 const UserEditPage = () => {
   const { id } = useParams();
@@ -34,7 +34,7 @@ const UserEditPage = () => {
 
   const fetchUser = async () => {
     try {
-      const data = await usersService.getUser(id);
+      const data = await UsersService.getUser(id);
       reset({
         name: data.user.name,
         email: data.user.email,
@@ -65,7 +65,7 @@ const UserEditPage = () => {
         updateData.password = data.password;
       }
       
-      await usersService.updateUser(id, updateData);
+      await UsersService.updateUser(id, updateData);
       navigate(ROUTES.USERS);
     } catch (err) {
       setError("root", {
