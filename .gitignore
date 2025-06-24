@@ -24,3 +24,8 @@ dist-ssr
 *.sw?
 
 bun.lockb
+
+# Mock backend data files
+# Commented out to include seed data in repository
+# mock-backend/data/*.json
+!mock-backend/data/.gitkeep

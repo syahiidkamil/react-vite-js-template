@@ -7,15 +7,16 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get the previous location or use dashboard as default
-  const from = location.state?.from?.pathname || "/dashboard";
+  // Get the previous location or use root as default
+  const from = location.state?.from?.pathname || "/";
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -25,18 +26,20 @@ const LoginPage = () => {
       return;
     }
 
-    // Dummy login
-    try {
-      const userData = {
-        id: 1,
-        name: email.split("@")[0], // Use part of email as name for demo
-        email,
-      };
+    setLoading(true);
 
-      login(userData);
-      navigate(from, { replace: true });
+    try {
+      const result = await login(email, password);
+      
+      if (result.success) {
+        navigate(from, { replace: true });
+      } else {
+        setError(result.error);
+      }
     } catch (err) {
-      setError("Invalid credentials");
+      setError("An unexpected error occurred");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -82,10 +85,21 @@ const LoginPage = () => {
             />
           </div>
 
-          <Button variant="default" type="submit" className="w-full">
-            Sign In
+          <Button 
+            variant="default" 
+            type="submit" 
+            className="w-full" 
+            disabled={loading}
+          >
+            {loading ? "Signing in..." : "Sign In"}
           </Button>
         </form>
+
+        <div className="mt-4 text-center">
+          <Link to="/forgot-password" className="text-gray-600 hover:text-gray-800">
+            Forgot your password?
+          </Link>
+        </div>
 
         <div className="mt-4 text-center">
           Don't have an account?{" "}

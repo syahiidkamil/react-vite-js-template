@@ -1,0 +1,18 @@
+[
+  {
+    "id": "1735037400001",
+    "email": "admin@example.com",
+    "password": "$2a$10$ItQQD1erg/X..2MJdmGvWOOULz93cyzR//shqbi0MlQ2ElTQcc3Ea",
+    "name": "Admin User",
+    "role": "admin",
+    "createdAt": "2024-12-24T10:00:00.000Z"
+  },
+  {
+    "id": "1735037400002",
+    "email": "user@example.com",
+    "password": "$2a$10$0C0if4Y5qHe9oATP0BsBKuo/jEKGPOmIsY26fFocMXincBEmd/ytO",
+    "name": "Regular User",
+    "role": "user",
+    "createdAt": "2024-12-24T10:00:00.000Z"
+  }
+]

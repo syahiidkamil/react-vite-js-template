@@ -1,9 +1,15 @@
 import React from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 
 const Navigation = () => {
   const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login");
+  };
 
   return (
     <nav className="bg-gray-800 p-4">
@@ -13,9 +19,9 @@ const Navigation = () => {
           {isAuthenticated ? (
             <>
               <li className="text-white">
-                <span className="mr-2">Hi, {user.name}</span>
+                <span className="mr-2">Hi, {user?.name || user?.email}</span>
                 <button
-                  onClick={logout}
+                  onClick={handleLogout}
                   className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-sm"
                 >
                   Logout

@@ -6,9 +6,9 @@ import PublicRoute from "./shared/routes/PublicRoute";
 import DashboardLayout from "./shared/components/DashboardLayout";
 import LoginPage from "./features/auth/LoginPage";
 import RegisterPage from "./features/auth/RegisterPage";
-import DashboardHomePage from "./features/dashboard-home/DashboardHomePage";
-import ProductsPage from "./features/products/ProductsPage";
-import ProductDetailsPage from "./features/products/ProductDetailsPage";
+import ForgotPasswordPage from "./features/auth/ForgotPasswordPage";
+import OtpVerificationPage from "./features/auth/OtpVerificationPage";
+import ResetPasswordPage from "./features/auth/ResetPasswordPage";
 import NotFoundPage from "./features/not-found/NotFoundPage";
 
 // Route configuration array
@@ -23,19 +23,7 @@ const routesConfig = [
     children: [
       {
         index: true,
-        element: <DashboardHomePage />,
-      },
-      {
-        path: "dashboard",
-        element: <DashboardHomePage />,
-      },
-      {
-        path: "products",
-        element: <ProductsPage />,
-      },
-      {
-        path: "products/:id",
-        element: <ProductDetailsPage />,
+        element: <div className="p-8"><h1 className="text-2xl font-bold">Welcome to Dashboard</h1></div>,
       },
     ],
   },
@@ -52,6 +40,30 @@ const routesConfig = [
     element: (
       <PublicRoute>
         <RegisterPage />
+      </PublicRoute>
+    ),
+  },
+  {
+    path: "/forgot-password",
+    element: (
+      <PublicRoute>
+        <ForgotPasswordPage />
+      </PublicRoute>
+    ),
+  },
+  {
+    path: "/verify-otp",
+    element: (
+      <PublicRoute>
+        <OtpVerificationPage />
+      </PublicRoute>
+    ),
+  },
+  {
+    path: "/reset-password",
+    element: (
+      <PublicRoute>
+        <ResetPasswordPage />
       </PublicRoute>
     ),
   },

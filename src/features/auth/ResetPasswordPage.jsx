@@ -1,25 +1,39 @@
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router";
-import { useAuth } from "../../shared/hooks/useAuth";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation, Link } from "react-router";
 import { Button } from "@/components/ui/button";
+import authService from "../../shared/services/auth.service";
 
-const RegisterPage = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+const ResetPasswordPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const { register } = useAuth();
+  const [error, setError] = useState("");
+  const [email, setEmail] = useState("");
+  const [resetToken, setResetToken] = useState("");
+  
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Get email and reset token from navigation state
+    const stateEmail = location.state?.email;
+    const stateToken = location.state?.resetToken;
+    
+    if (stateEmail && stateToken) {
+      setEmail(stateEmail);
+      setResetToken(stateToken);
+    } else {
+      // If no state, redirect to forgot password
+      navigate('/forgot-password');
+    }
+  }, [location, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    // Simple validation
-    if (!name || !email || !password || !confirmPassword) {
+    // Validation
+    if (!password || !confirmPassword) {
       setError("Please fill in all fields");
       return;
     }
@@ -35,17 +49,15 @@ const RegisterPage = () => {
     }
 
     setLoading(true);
-
+    
     try {
-      const result = await register(email, password, name);
+      await authService.resetPassword(email, resetToken, password);
       
-      if (result.success) {
-        navigate("/", { replace: true });
-      } else {
-        setError(result.error);
-      }
+      // Show success message and redirect to login
+      alert("Password reset successful! Please login with your new password.");
+      navigate('/login');
     } catch (err) {
-      setError("An unexpected error occurred");
+      setError(err.response?.data?.message || "Failed to reset password");
     } finally {
       setLoading(false);
     }
@@ -55,8 +67,12 @@ const RegisterPage = () => {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="max-w-md w-full p-6 bg-white rounded shadow">
         <h1 className="text-2xl font-bold text-center mb-6">
-          Create an account
+          Reset Password
         </h1>
+        
+        <p className="text-gray-600 text-center mb-6">
+          Enter your new password for {email}
+        </p>
 
         {error && (
           <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
@@ -66,36 +82,8 @@ const RegisterPage = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="name">
-              Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded"
-              placeholder="Your name"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="email">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded"
-              placeholder="Your email"
-            />
-          </div>
-
-          <div className="mb-4">
             <label className="block text-gray-700 mb-2" htmlFor="password">
-              Password
+              New Password
             </label>
             <input
               type="password"
@@ -103,16 +91,14 @@ const RegisterPage = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded"
-              placeholder="Your password"
+              placeholder="Enter new password"
+              disabled={loading}
             />
           </div>
 
           <div className="mb-6">
-            <label
-              className="block text-gray-700 mb-2"
-              htmlFor="confirmPassword"
-            >
-              Confirm Password
+            <label className="block text-gray-700 mb-2" htmlFor="confirmPassword">
+              Confirm New Password
             </label>
             <input
               type="password"
@@ -120,7 +106,8 @@ const RegisterPage = () => {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded"
-              placeholder="Confirm your password"
+              placeholder="Confirm new password"
+              disabled={loading}
             />
           </div>
 
@@ -130,14 +117,13 @@ const RegisterPage = () => {
             className="w-full" 
             disabled={loading}
           >
-            {loading ? "Creating account..." : "Register"}
+            {loading ? "Resetting..." : "Reset Password"}
           </Button>
         </form>
 
         <div className="mt-4 text-center">
-          Already have an account?{" "}
-          <Link to="/login" className="text-blue-500 hover:text-blue-700">
-            Login
+          <Link to="/login" className="text-gray-500 hover:text-gray-700">
+            Back to Login
           </Link>
         </div>
       </div>
@@ -145,4 +131,4 @@ const RegisterPage = () => {
   );
 };
 
-export default RegisterPage;
+export default ResetPasswordPage;
