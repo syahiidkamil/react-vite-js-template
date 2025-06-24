@@ -26,7 +26,7 @@ const UsersListPage = () => {
       
       const data = await response.json();
       setUsers(data.users);
-    } catch (err) {
+    } catch {
       setError("Failed to load users");
     } finally {
       setLoading(false);
@@ -52,7 +52,7 @@ const UsersListPage = () => {
       
       // Remove user from list
       setUsers(users.filter(u => u.id !== userId));
-    } catch (err) {
+    } catch {
       alert("Failed to delete user");
     } finally {
       setDeleteLoading(null);
@@ -70,8 +70,8 @@ const UsersListPage = () => {
   if (error) {
     return (
       <div className="text-center py-8">
-        <div className="text-red-600">{error}</div>
-        <Button onClick={fetchUsers} className="mt-4" size="sm">
+        <div className="text-red-600 mb-4">{error}</div>
+        <Button onClick={fetchUsers} size="sm">
           Retry
         </Button>
       </div>
@@ -80,16 +80,22 @@ const UsersListPage = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Users</h1>
+      <div className="page-header flex justify-between items-center">
+        <div>
+          <h1 className="page-title">Users</h1>
+          <p className="page-description">Manage system users and their roles</p>
+        </div>
         <Button asChild>
           <Link to="/users/new">
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
             Add User
           </Link>
         </Button>
       </div>
 
-      <div className="card p-0 overflow-hidden">
+      <div className="card p-0 overflow-hidden animate-scale-in">
         <table className="table">
           <thead>
             <tr>
@@ -103,45 +109,57 @@ const UsersListPage = () => {
           <tbody>
             {users.length === 0 ? (
               <tr>
-                <td colSpan="5" className="text-center text-gray-500 py-8">
-                  No users found
+                <td colSpan="5" className="text-center text-gray-500 py-12">
+                  <svg className="w-12 h-12 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                  </svg>
+                  <p>No users found</p>
+                  <p className="text-sm mt-1">Get started by creating a new user</p>
                 </td>
               </tr>
             ) : (
               users.map((user) => (
                 <tr key={user.id}>
                   <td className="font-medium">{user.name}</td>
-                  <td>{user.email}</td>
+                  <td className="text-gray-600">{user.email}</td>
                   <td>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'
+                    <span className={`badge ${
+                      user.role === 'admin' ? 'badge-purple' : 'badge-primary'
                     }`}>
                       {user.role || 'user'}
                     </span>
                   </td>
-                  <td>{new Date(user.createdAt).toLocaleDateString()}</td>
-                  <td className="text-right space-x-2">
-                    <Link
-                      to={`/users/${user.id}`}
-                      className="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-100 border border-gray-300"
-                    >
-                      View
-                    </Link>
-                    <Link
-                      to={`/users/${user.id}/edit`}
-                      className="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-100 border border-gray-300"
-                    >
-                      Edit
-                    </Link>
-                    {user.id !== currentUser.id && (
-                      <button
-                        onClick={() => handleDelete(user.id)}
-                        disabled={deleteLoading === user.id}
-                        className="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50 border border-red-300 disabled:opacity-50"
+                  <td className="text-gray-600">
+                    {new Date(user.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </td>
+                  <td>
+                    <div className="action-buttons justify-end">
+                      <Link
+                        to={`/users/${user.id}`}
+                        className="action-button action-button-primary"
                       >
-                        {deleteLoading === user.id ? "..." : "Delete"}
-                      </button>
-                    )}
+                        View
+                      </Link>
+                      <Link
+                        to={`/users/${user.id}/edit`}
+                        className="action-button action-button-primary"
+                      >
+                        Edit
+                      </Link>
+                      {user.id !== currentUser.id && (
+                        <button
+                          onClick={() => handleDelete(user.id)}
+                          disabled={deleteLoading === user.id}
+                          className="action-button action-button-danger disabled:opacity-50"
+                        >
+                          {deleteLoading === user.id ? "..." : "Delete"}
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))
