@@ -23,7 +23,7 @@ const readDB = async (dbPath) => {
   try {
     const data = await fs.readFile(dbPath, 'utf-8');
     return JSON.parse(data);
-  } catch (error) {
+  } catch {
     return [];
   }
 };

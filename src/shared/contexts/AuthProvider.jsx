@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const userData = await AuthService.getCurrentUser();
       setUser(userData);
-    } catch (error) {
+    } catch {
       // User is not authenticated - this is normal for first load
       // Don't trigger refresh token logic here
       setUser(null);

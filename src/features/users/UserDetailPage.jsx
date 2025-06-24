@@ -16,13 +16,14 @@ const UserDetailPage = () => {
 
   useEffect(() => {
     fetchUser();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const fetchUser = async () => {
     try {
       const data = await UsersService.getUser(id);
       setUser(data.user);
-    } catch (err) {
+    } catch {
       setError("Failed to load user");
     } finally {
       setLoading(false);
@@ -40,7 +41,7 @@ const UserDetailPage = () => {
       await UsersService.deleteUser(id);
       
       navigate(ROUTES.USERS);
-    } catch (err) {
+    } catch {
       alert("Failed to delete user");
       setDeleteLoading(false);
     }

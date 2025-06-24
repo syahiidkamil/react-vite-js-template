@@ -25,7 +25,7 @@ export const generateTokens = (userId) => {
 export const verifyAccessToken = (token) => {
   try {
     return jwt.verify(token, ACCESS_TOKEN_SECRET);
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -33,7 +33,7 @@ export const verifyAccessToken = (token) => {
 export const verifyRefreshToken = (token) => {
   try {
     return jwt.verify(token, REFRESH_TOKEN_SECRET);
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -41,7 +41,7 @@ export const verifyRefreshToken = (token) => {
 // Cookie options
 export const cookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
+  secure: globalThis.process?.env.NODE_ENV === 'production',
   sameSite: 'lax',
   path: '/'
 };

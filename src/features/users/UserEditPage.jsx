@@ -25,11 +25,12 @@ const UserEditPage = () => {
     },
   });
   
-  const { handleSubmit, setError, setValue, watch, reset, formState: { isSubmitting } } = methods;
+  const { handleSubmit, setError, watch, reset, formState: { isSubmitting } } = methods;
   const changePassword = watch("changePassword");
   
   useEffect(() => {
     fetchUser();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const fetchUser = async () => {
@@ -42,7 +43,7 @@ const UserEditPage = () => {
         changePassword: false,
         password: "",
       });
-    } catch (err) {
+    } catch {
       setFetchError("Failed to load user");
     } finally {
       setFetchLoading(false);

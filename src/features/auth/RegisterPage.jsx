@@ -40,7 +40,7 @@ const RegisterPage = () => {
           message: result.error || "Registration failed",
         });
       }
-    } catch (err) {
+    } catch {
       setError("root", {
         type: "manual",
         message: "An unexpected error occurred",

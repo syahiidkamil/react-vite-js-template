@@ -68,7 +68,7 @@ const OtpVerificationPage = () => {
     try {
       await AuthService.forgotPassword(email);
       alert("New OTP sent to your email!");
-    } catch (err) {
+    } catch {
       setError("root", {
         type: "manual",
         message: "Failed to resend OTP",

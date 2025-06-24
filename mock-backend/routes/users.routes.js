@@ -21,7 +21,7 @@ const readDB = async () => {
   try {
     const data = await fs.readFile(USERS_DB, 'utf-8');
     return JSON.parse(data);
-  } catch (error) {
+  } catch {
     return [];
   }
 };
@@ -39,6 +39,7 @@ router.get('/', authenticate, async (req, res) => {
     const users = await readDB();
     
     // Remove passwords from response
+    // eslint-disable-next-line no-unused-vars
     const usersWithoutPasswords = users.map(({ password, ...user }) => user);
     
     res.json({ users: usersWithoutPasswords });
@@ -61,6 +62,7 @@ router.get('/:id', authenticate, async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
     
+    // eslint-disable-next-line no-unused-vars
     const { password, ...userWithoutPassword } = user;
     
     res.json({ user: userWithoutPassword });
