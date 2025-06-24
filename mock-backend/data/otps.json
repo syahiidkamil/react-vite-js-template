@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "email": "admin@example.com",
+    "otp": "380309",
+    "createdAt": "2025-06-24T16:14:31.267Z",
+    "expiresAt": "2025-06-24T16:24:31.267Z",
+    "resetToken": "r46wmij3wja",
+    "verified": true
+  }
+]
