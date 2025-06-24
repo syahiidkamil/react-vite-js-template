@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams, Link } from "react-router";
 import { Button } from "@/components/ui/button";
+import { ROUTES, API_ENDPOINTS } from "../../shared/constants";
 
 const UserEditPage = () => {
   const { id } = useParams();
@@ -22,7 +23,7 @@ const UserEditPage = () => {
 
   const fetchUser = async () => {
     try {
-      const response = await fetch(`/api/users/${id}`, {
+      const response = await fetch(API_ENDPOINTS.USER_BY_ID(id), {
         credentials: "include",
       });
       
@@ -43,12 +44,20 @@ const UserEditPage = () => {
     }
   };
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
+  const handleChange = useCallback((e) => {
+    setFormData(prev => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
-  };
+    }));
+  }, []);
+  
+  const handleCancel = useCallback(() => {
+    navigate(ROUTES.USERS);
+  }, [navigate]);
+  
+  const handlePasswordToggle = useCallback((e) => {
+    setChangePassword(e.target.checked);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -73,7 +82,7 @@ const UserEditPage = () => {
         updateData.password = newPassword;
       }
 
-      const response = await fetch(`/api/users/${id}`, {
+      const response = await fetch(API_ENDPOINTS.USER_BY_ID(id), {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -87,7 +96,7 @@ const UserEditPage = () => {
         throw new Error(data.message || "Failed to update user");
       }
 
-      navigate("/users");
+      navigate(ROUTES.USERS);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -107,7 +116,7 @@ const UserEditPage = () => {
     <div className="max-w-2xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Edit User</h1>
-        <Link to="/users" className="text-sm text-gray-600 hover:text-gray-800">
+        <Link to={ROUTES.USERS} className="text-sm text-gray-600 hover:text-gray-800">
           ← Back to users
         </Link>
       </div>
@@ -171,7 +180,7 @@ const UserEditPage = () => {
               <input
                 type="checkbox"
                 checked={changePassword}
-                onChange={(e) => setChangePassword(e.target.checked)}
+                onChange={handlePasswordToggle}
                 className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span className="ml-2 text-sm text-gray-700">Change password</span>
@@ -207,7 +216,7 @@ const UserEditPage = () => {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate("/users")}
+              onClick={handleCancel}
             >
               Cancel
             </Button>

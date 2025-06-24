@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "../../shared/hooks/useAuth";
+import { ROUTES, API_ENDPOINTS } from "../../shared/constants";
 
 const UserDetailPage = () => {
   const { id } = useParams();
@@ -18,7 +19,7 @@ const UserDetailPage = () => {
 
   const fetchUser = async () => {
     try {
-      const response = await fetch(`/api/users/${id}`, {
+      const response = await fetch(API_ENDPOINTS.USER_BY_ID(id), {
         credentials: "include",
       });
       
@@ -35,7 +36,7 @@ const UserDetailPage = () => {
     }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     if (!window.confirm("Are you sure you want to delete this user?")) {
       return;
     }
@@ -43,7 +44,7 @@ const UserDetailPage = () => {
     setDeleteLoading(true);
     
     try {
-      const response = await fetch(`/api/users/${id}`, {
+      const response = await fetch(API_ENDPOINTS.USER_BY_ID(id), {
         method: "DELETE",
         credentials: "include",
       });
@@ -52,12 +53,12 @@ const UserDetailPage = () => {
         throw new Error("Failed to delete user");
       }
       
-      navigate("/users");
+      navigate(ROUTES.USERS);
     } catch (err) {
       alert("Failed to delete user");
       setDeleteLoading(false);
     }
-  };
+  }, [id, navigate]);
 
   if (loading) {
     return (
@@ -71,7 +72,7 @@ const UserDetailPage = () => {
     return (
       <div className="text-center py-8">
         <div className="text-red-600">{error || "User not found"}</div>
-        <Button onClick={() => navigate("/users")} className="mt-4" size="sm">
+        <Button onClick={() => navigate(ROUTES.USERS)} className="mt-4" size="sm">
           Back to Users
         </Button>
       </div>
@@ -82,7 +83,7 @@ const UserDetailPage = () => {
     <div className="max-w-2xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">User Details</h1>
-        <Link to="/users" className="text-sm text-gray-600 hover:text-gray-800">
+        <Link to={ROUTES.USERS} className="text-sm text-gray-600 hover:text-gray-800">
           ← Back to users
         </Link>
       </div>
@@ -123,7 +124,7 @@ const UserDetailPage = () => {
 
         <div className="mt-8 pt-6 border-t border-gray-200 flex gap-3">
           <Button asChild>
-            <Link to={`/users/${user.id}/edit`}>
+            <Link to={ROUTES.getUserEdit(user.id)}>
               Edit User
             </Link>
           </Button>

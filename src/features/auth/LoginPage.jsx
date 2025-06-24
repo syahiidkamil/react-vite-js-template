@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useNavigate, Link } from "react-router";
 import { useAuth } from "../../shared/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { ROUTES } from "../../shared/constants";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -28,7 +29,7 @@ const LoginPage = () => {
       const result = await login(email, password);
 
       if (result.success) {
-        navigate("/dashboard");
+        navigate(ROUTES.DASHBOARD);
       } else {
         setError(result.error);
       }
@@ -69,7 +70,7 @@ const LoginPage = () => {
                   type="email"
                   id="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={useCallback((e) => setEmail(e.target.value), [])}
                   className="form-input pl-11"
                   placeholder="you@example.com"
                   autoComplete="email"
@@ -91,7 +92,7 @@ const LoginPage = () => {
                   type={showPassword ? "text" : "password"}
                   id="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={useCallback((e) => setPassword(e.target.value), [])}
                   className="form-input pl-11 pr-11"
                   placeholder="••••••••"
                   autoComplete="current-password"
@@ -103,7 +104,7 @@ const LoginPage = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={useCallback(() => setShowPassword(prev => !prev), [])}
                   className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                 >
                   {showPassword ? (
@@ -121,7 +122,7 @@ const LoginPage = () => {
             </div>
 
             <div className="flex items-center justify-end">
-              <Link to="/forgot-password" className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+              <Link to={ROUTES.FORGOT_PASSWORD} className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
                 Forgot password?
               </Link>
             </div>
@@ -145,7 +146,7 @@ const LoginPage = () => {
           <div className="mt-8 pt-6 border-t border-gray-100">
             <p className="text-center text-sm text-gray-600">
               Don't have an account?{" "}
-              <Link to="/register" className="font-medium text-blue-600 hover:text-blue-700 transition-colors">
+              <Link to={ROUTES.REGISTER} className="font-medium text-blue-600 hover:text-blue-700 transition-colors">
                 Create account
               </Link>
             </p>

@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useNavigate, Link } from "react-router";
 import { useAuth } from "../../shared/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { ROUTES } from "../../shared/constants";
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -54,7 +55,7 @@ const RegisterPage = () => {
       );
 
       if (result.success) {
-        navigate("/dashboard");
+        navigate(ROUTES.DASHBOARD);
       } else {
         setError(result.error);
       }

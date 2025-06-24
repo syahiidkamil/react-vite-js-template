@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "../../shared/hooks/useAuth";
+import { ROUTES, API_ENDPOINTS } from "../../shared/constants";
 
 const UsersListPage = () => {
   const [users, setUsers] = useState([]);
@@ -16,7 +17,7 @@ const UsersListPage = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch("/api/users", {
+      const response = await fetch(API_ENDPOINTS.USERS, {
         credentials: "include",
       });
       
@@ -33,7 +34,7 @@ const UsersListPage = () => {
     }
   };
 
-  const handleDelete = async (userId) => {
+  const handleDelete = useCallback(async (userId) => {
     if (!window.confirm("Are you sure you want to delete this user?")) {
       return;
     }
@@ -41,7 +42,7 @@ const UsersListPage = () => {
     setDeleteLoading(userId);
     
     try {
-      const response = await fetch(`/api/users/${userId}`, {
+      const response = await fetch(API_ENDPOINTS.USER_BY_ID(userId), {
         method: "DELETE",
         credentials: "include",
       });
@@ -51,13 +52,13 @@ const UsersListPage = () => {
       }
       
       // Remove user from list
-      setUsers(users.filter(u => u.id !== userId));
+      setUsers(prevUsers => prevUsers.filter(u => u.id !== userId));
     } catch {
       alert("Failed to delete user");
     } finally {
       setDeleteLoading(null);
     }
-  };
+  }, []);
 
   if (loading) {
     return (
@@ -86,7 +87,7 @@ const UsersListPage = () => {
           <p className="page-description">Manage system users and their roles</p>
         </div>
         <Button asChild>
-          <Link to="/users/new">
+          <Link to={ROUTES.USER_CREATE}>
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
@@ -139,13 +140,13 @@ const UsersListPage = () => {
                   <td>
                     <div className="action-buttons justify-end">
                       <Link
-                        to={`/users/${user.id}`}
+                        to={ROUTES.getUserDetail(user.id)}
                         className="action-button action-button-primary"
                       >
                         View
                       </Link>
                       <Link
-                        to={`/users/${user.id}/edit`}
+                        to={ROUTES.getUserEdit(user.id)}
                         className="action-button action-button-primary"
                       >
                         Edit

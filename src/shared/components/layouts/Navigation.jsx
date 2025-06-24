@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../../hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { ROUTES } from "../../constants";
 
 const Navigation = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -9,17 +10,29 @@ const Navigation = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     await logout();
-    navigate("/login");
-  };
+    navigate(ROUTES.LOGIN);
+  }, [logout, navigate]);
+  
+  const toggleDropdown = useCallback(() => {
+    setShowDropdown(prev => !prev);
+  }, []);
+  
+  const toggleMobileMenu = useCallback(() => {
+    setShowMobileMenu(prev => !prev);
+  }, []);
+  
+  const closeDropdown = useCallback(() => {
+    setShowDropdown(false);
+  }, []);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3 group">
+          <Link to={ROUTES.HOME} className="flex items-center space-x-3 group">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
               <span className="text-white font-bold text-lg">A</span>
             </div>
@@ -33,7 +46,7 @@ const Navigation = () => {
                 {/* User Dropdown */}
                 <div className="relative">
                   <button
-                    onClick={() => setShowDropdown(!showDropdown)}
+                    onClick={toggleDropdown}
                     className="flex items-center space-x-3 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center text-white font-medium text-sm shadow-sm">
@@ -51,7 +64,7 @@ const Navigation = () => {
                       {/* Click outside to close */}
                       <div
                         className="fixed inset-0 z-10"
-                        onClick={() => setShowDropdown(false)}
+                        onClick={closeDropdown}
                       />
                       
                       {/* Dropdown content */}
@@ -78,11 +91,11 @@ const Navigation = () => {
               </>
             ) : (
               <>
-                <Link to="/login" className="text-sm font-medium text-gray-700 hover:text-gray-900 px-3 py-2">
+                <Link to={ROUTES.LOGIN} className="text-sm font-medium text-gray-700 hover:text-gray-900 px-3 py-2">
                   Login
                 </Link>
                 <Button asChild size="sm">
-                  <Link to="/register">
+                  <Link to={ROUTES.REGISTER}>
                     Get Started
                   </Link>
                 </Button>
@@ -92,7 +105,7 @@ const Navigation = () => {
 
           {/* Mobile Menu Button */}
           <button
-            onClick={() => setShowMobileMenu(!showMobileMenu)}
+            onClick={toggleMobileMenu}
             className="md:hidden p-2 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -126,8 +139,8 @@ const Navigation = () => {
               </>
             ) : (
               <>
-                <Link to="/login" className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">Login</Link>
-                <Link to="/register" className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">Get Started</Link>
+                <Link to={ROUTES.LOGIN} className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">Login</Link>
+                <Link to={ROUTES.REGISTER} className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">Get Started</Link>
               </>
             )}
           </div>
