@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "../../shared/hooks/useAuth";
+import { useAuth } from "../auth/hooks/useAuth";
 import { ROUTES } from "../../shared/constants";
 import UsersService from "./services/UsersService";
 

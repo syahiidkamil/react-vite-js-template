@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../../features/auth/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "../../constants";
 

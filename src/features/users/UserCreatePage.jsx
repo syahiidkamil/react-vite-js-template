@@ -5,7 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { FormInput, FormSelect } from "../../shared/components/forms";
 import { createUserSchema } from "./schemas/user.schema";
-import { ROUTES, USER_ROLES } from "../../shared/constants";
+import { ROUTES } from "../../shared/constants";
+import { USER_ROLES } from "../../shared/constants/roles.constants";
 import UsersService from "./services/UsersService";
 
 const UserCreatePage = () => {

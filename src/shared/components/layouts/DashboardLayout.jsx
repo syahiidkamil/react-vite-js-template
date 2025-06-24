@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { Link, Outlet, useLocation } from "react-router";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../../features/auth/hooks/useAuth";
 import Navigation from "./Navigation";
 import { SIDEBAR, ROUTES } from "../../constants";
 

@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate, Link } from "react-router";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAuth } from "../../shared/hooks/useAuth";
+import { useAuth } from "./hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { FormInput } from "../../shared/components/forms";
 import { registerSchema } from "./schemas/auth.schema";

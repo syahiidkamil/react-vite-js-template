@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { VALIDATION, USER_ROLES } from '../../../shared/constants/validation.constants';
+import { VALIDATION } from '../../../shared/constants/validation.constants';
+import { USER_ROLES } from '../../../shared/constants/roles.constants';
 
 // Base user schema
 export const userBaseSchema = z.object({

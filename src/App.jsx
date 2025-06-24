@@ -1,6 +1,6 @@
 import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router";
-import { AuthProvider } from "./shared/contexts/AuthProvider";
+import { AuthProvider } from "./features/auth/contexts/AuthProvider";
 import ProtectedRoute from "./shared/routes/ProtectedRoute";
 import PublicRoute from "./shared/routes/PublicRoute";
 import DashboardLayout from "./shared/components/layouts/DashboardLayout";

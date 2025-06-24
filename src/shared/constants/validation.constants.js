@@ -43,11 +43,6 @@ export const VALIDATION = {
   },
 };
 
-export const USER_ROLES = {
-  ADMIN: 'admin',
-  USER: 'user',
-};
-
 export const ERROR_MESSAGES = {
   GENERIC: 'An unexpected error occurred',
   NETWORK: 'Network error. Please check your connection',
