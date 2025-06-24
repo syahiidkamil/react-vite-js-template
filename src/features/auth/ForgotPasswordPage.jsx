@@ -1,97 +1,108 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate, Link } from "react-router";
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
+import { FormInput } from "../../shared/components/forms";
+import { forgotPasswordSchema } from "./schemas/auth.schema";
 import authService from "./services/auth.service";
+import { ROUTES } from "../../shared/constants";
 
 const ForgotPasswordPage = () => {
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  
   const navigate = useNavigate();
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setMessage("");
-
-    if (!email) {
-      setError("Please enter your email address");
-      return;
-    }
-
-    setLoading(true);
+  
+  const methods = useForm({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
+  
+  const { handleSubmit, setError, formState: { isSubmitting } } = methods;
+  const [successMessage, setSuccessMessage] = React.useState("");
+  
+  const onSubmit = async (data) => {
+    setSuccessMessage("");
     
     try {
-      const response = await authService.forgotPassword(email);
-      setMessage(response.message);
+      const response = await authService.forgotPassword(data.email);
+      setSuccessMessage(response.message || "OTP sent successfully!");
       
       // Navigate to OTP verification page after 2 seconds
       setTimeout(() => {
-        navigate('/verify-otp', { state: { email } });
+        navigate(ROUTES.VERIFY_OTP, { state: { email: data.email } });
       }, 2000);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to send OTP");
-    } finally {
-      setLoading(false);
+      setError("root", {
+        type: "manual",
+        message: err.response?.data?.message || "Failed to send OTP",
+      });
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="max-w-md w-full p-6 bg-white rounded shadow">
-        <h1 className="text-2xl font-bold text-center mb-6">
-          Forgot Password
-        </h1>
-        
-        <p className="text-gray-600 text-center mb-6">
-          Enter your email address and we'll send you an OTP to reset your password.
-        </p>
-
-        {error && (
-          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
-            {error}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+      <div className="w-full max-w-md animate-slide-in">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg mb-4">
+            <span className="text-white font-bold text-2xl">A</span>
           </div>
-        )}
-        
-        {message && (
-          <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4">
-            {message}
+          <h2 className="text-3xl font-bold text-gray-900">Forgot Password</h2>
+          <p className="mt-2 text-gray-600">Enter your email to receive a verification code</p>
+        </div>
+
+        <div className="card p-8">
+          {methods.formState.errors.root && (
+            <div className="error-message mb-6 animate-fade-in">
+              {methods.formState.errors.root.message}
+            </div>
+          )}
+          
+          {successMessage && (
+            <div className="success-message mb-6 animate-fade-in">
+              {successMessage}
+            </div>
+          )}
+
+          <FormProvider {...methods}>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <FormInput
+                name="email"
+                type="email"
+                label="Email address"
+                placeholder="you@example.com"
+                autoComplete="email"
+                icon={
+                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                  </svg>
+                }
+              />
+
+              <Button 
+                type="submit" 
+                className="w-full" 
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="loading-spinner"></span>
+                    Sending OTP...
+                  </span>
+                ) : (
+                  "Send OTP"
+                )}
+              </Button>
+            </form>
+          </FormProvider>
+
+          <div className="mt-6 text-center">
+            <span className="text-sm text-gray-600">Remember your password? </span>
+            <Link to={ROUTES.LOGIN} className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+              Sign in
+            </Link>
           </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-          <div className="mb-6">
-            <label className="block text-gray-700 mb-2" htmlFor="email">
-              Email Address
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded"
-              placeholder="your.email@example.com"
-              disabled={loading}
-            />
-          </div>
-
-          <Button 
-            variant="default" 
-            type="submit" 
-            className="w-full" 
-            disabled={loading}
-          >
-            {loading ? "Sending OTP..." : "Send OTP"}
-          </Button>
-        </form>
-
-        <div className="mt-4 text-center">
-          Remember your password?{" "}
-          <Link to="/login" className="text-blue-500 hover:text-blue-700">
-            Sign In
-          </Link>
         </div>
       </div>
     </div>

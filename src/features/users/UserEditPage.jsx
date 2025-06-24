@@ -1,23 +1,33 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useEffect, useCallback } from "react";
 import { useNavigate, useParams, Link } from "react-router";
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { ROUTES } from "../../shared/constants";
+import { FormInput, FormSelect, FormCheckbox } from "../../shared/components/forms";
+import { updateUserSchema } from "./schemas/user.schema";
+import { ROUTES, USER_ROLES } from "../../shared/constants";
 import usersService from "./services/users.service";
 
 const UserEditPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    role: "user",
+  const [fetchLoading, setFetchLoading] = React.useState(true);
+  const [fetchError, setFetchError] = React.useState("");
+  
+  const methods = useForm({
+    resolver: zodResolver(updateUserSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      role: USER_ROLES.USER,
+      changePassword: false,
+      password: "",
+    },
   });
-  const [changePassword, setChangePassword] = useState(false);
-  const [newPassword, setNewPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [fetchLoading, setFetchLoading] = useState(true);
-
+  
+  const { handleSubmit, setError, setValue, watch, reset, formState: { isSubmitting } } = methods;
+  const changePassword = watch("changePassword");
+  
   useEffect(() => {
     fetchUser();
   }, [id]);
@@ -25,70 +35,66 @@ const UserEditPage = () => {
   const fetchUser = async () => {
     try {
       const data = await usersService.getUser(id);
-      setFormData({
+      reset({
         name: data.user.name,
         email: data.user.email,
-        role: data.user.role || "user",
+        role: data.user.role || USER_ROLES.USER,
+        changePassword: false,
+        password: "",
       });
     } catch (err) {
-      setError("Failed to load user");
+      setFetchError("Failed to load user");
     } finally {
       setFetchLoading(false);
     }
   };
-
-  const handleChange = useCallback((e) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  }, []);
   
   const handleCancel = useCallback(() => {
     navigate(ROUTES.USERS);
   }, [navigate]);
   
-  const handlePasswordToggle = useCallback((e) => {
-    setChangePassword(e.target.checked);
-  }, []);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-
-    // Validation
-    if (!formData.name || !formData.email) {
-      setError("Please fill in all fields");
-      return;
-    }
-
-    if (changePassword && newPassword.length < 6) {
-      setError("Password must be at least 6 characters");
-      return;
-    }
-
-    setLoading(true);
-
+  const onSubmit = async (data) => {
     try {
-      const updateData = { ...formData };
-      if (changePassword && newPassword) {
-        updateData.password = newPassword;
+      const updateData = {
+        name: data.name,
+        email: data.email,
+        role: data.role,
+      };
+      
+      if (data.changePassword && data.password) {
+        updateData.password = data.password;
       }
-
+      
       await usersService.updateUser(id, updateData);
-
       navigate(ROUTES.USERS);
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+      setError("root", {
+        type: "manual",
+        message: err.response?.data?.message || err.message || "Failed to update user",
+      });
     }
   };
+
+  const roleOptions = [
+    { value: USER_ROLES.USER, label: "User" },
+    { value: USER_ROLES.ADMIN, label: "Admin" },
+  ];
 
   if (fetchLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="text-gray-500">Loading user...</div>
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="flex flex-col justify-center items-center h-64 gap-4">
+        <div className="text-red-600">{fetchError}</div>
+        <Button onClick={handleCancel} size="sm">
+          Back to Users
+        </Button>
       </div>
     );
   }
@@ -103,106 +109,83 @@ const UserEditPage = () => {
       </div>
 
       <div className="card">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6">
-            {error}
+        {methods.formState.errors.root && (
+          <div className="error-message mb-6 animate-fade-in">
+            {methods.formState.errors.root.message}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="form-group">
-            <label className="form-label" htmlFor="name">
-              Full Name
-            </label>
-            <input
-              type="text"
-              id="name"
+        <FormProvider {...methods}>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            <FormInput
               name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="form-input"
+              label="Full Name"
               placeholder="John Doe"
+              autoComplete="name"
             />
-          </div>
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="email">
-              Email Address
-            </label>
-            <input
-              type="email"
-              id="email"
+            <FormInput
               name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="form-input"
+              type="email"
+              label="Email Address"
               placeholder="john@example.com"
+              autoComplete="email"
             />
-          </div>
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="role">
-              Role
-            </label>
-            <select
-              id="role"
+            <FormSelect
               name="role"
-              value={formData.role}
-              onChange={handleChange}
-              className="form-input"
-            >
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
+              label="Role"
+              options={roleOptions}
+            />
 
-          <div className="border-t pt-5">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={changePassword}
-                onChange={handlePasswordToggle}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            <div className="border-t pt-5">
+              <FormCheckbox
+                name="changePassword"
+                label="Change password"
               />
-              <span className="ml-2 text-sm text-gray-700">Change password</span>
-            </label>
 
-            {changePassword && (
-              <div className="form-group mt-4">
-                <label className="form-label" htmlFor="newPassword">
-                  New Password
-                </label>
-                <input
-                  type="password"
-                  id="newPassword"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="form-input"
-                  placeholder="••••••••"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Minimum 6 characters
-                </p>
-              </div>
-            )}
-          </div>
+              {changePassword && (
+                <div className="mt-4 animate-fade-in">
+                  <FormInput
+                    name="password"
+                    type="password"
+                    label="New Password"
+                    placeholder="••••••••"
+                    autoComplete="new-password"
+                    showPasswordToggle
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Minimum 6 characters
+                  </p>
+                </div>
+              )}
+            </div>
 
-          <div className="flex gap-3">
-            <Button
-              type="submit"
-              disabled={loading}
-            >
-              {loading ? "Saving..." : "Save Changes"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleCancel}
-            >
-              Cancel
-            </Button>
-          </div>
-        </form>
+            <div className="flex gap-3">
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <span className="flex items-center gap-2">
+                    <span className="loading-spinner"></span>
+                    Saving...
+                  </span>
+                ) : (
+                  "Save Changes"
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCancel}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </FormProvider>
       </div>
     </div>
   );

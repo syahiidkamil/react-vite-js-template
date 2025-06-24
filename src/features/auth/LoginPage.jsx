@@ -1,42 +1,44 @@
-import React, { useState, useCallback } from "react";
+import React from "react";
 import { useNavigate, Link } from "react-router";
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "../../shared/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { FormInput } from "../../shared/components/forms";
+import { loginSchema } from "./schemas/auth.schema";
 import { ROUTES } from "../../shared/constants";
 
 const LoginPage = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-
   const { login } = useAuth();
   const navigate = useNavigate();
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-
-    if (!email || !password) {
-      setError("Please fill in all fields");
-      return;
-    }
-
-    setLoading(true);
-
+  
+  const methods = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+  
+  const { handleSubmit, setError, formState: { isSubmitting } } = methods;
+  
+  const onSubmit = async (data) => {
     try {
-      const result = await login(email, password);
+      const result = await login(data.email, data.password);
 
       if (result.success) {
         navigate(ROUTES.DASHBOARD);
       } else {
-        setError(result.error);
+        setError("root", {
+          type: "manual",
+          message: result.error || "Login failed",
+        });
       }
     } catch {
-      setError("An unexpected error occurred");
-    } finally {
-      setLoading(false);
+      setError("root", {
+        type: "manual",
+        message: "An unexpected error occurred",
+      });
     }
   };
 
@@ -54,110 +56,79 @@ const LoginPage = () => {
 
         {/* Login Card */}
         <div className="card p-8">
-          {error && (
+          {methods.formState.errors.root && (
             <div className="error-message mb-6 animate-fade-in">
-              {error}
+              {methods.formState.errors.root.message}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="form-group">
-              <label className="form-label" htmlFor="email">
-                Email address
-              </label>
-              <div className="relative">
-                <input
-                  type="email"
-                  id="email"
-                  value={email}
-                  onChange={useCallback((e) => setEmail(e.target.value), [])}
-                  className="form-input pl-11"
-                  placeholder="you@example.com"
-                  autoComplete="email"
-                />
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+          <FormProvider {...methods}>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <FormInput
+                name="email"
+                type="email"
+                label="Email address"
+                placeholder="you@example.com"
+                autoComplete="email"
+                icon={
                   <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                   </svg>
-                </div>
-              </div>
-            </div>
+                }
+              />
 
-            <div className="form-group">
-              <label className="form-label" htmlFor="password">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  id="password"
-                  value={password}
-                  onChange={useCallback((e) => setPassword(e.target.value), [])}
-                  className="form-input pl-11 pr-11"
-                  placeholder="••••••••"
-                  autoComplete="current-password"
-                />
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+              <FormInput
+                name="password"
+                type="password"
+                label="Password"
+                placeholder="••••••••"
+                autoComplete="current-password"
+                showPasswordToggle
+                icon={
                   <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
-                </div>
-                <button
-                  type="button"
-                  onClick={useCallback(() => setShowPassword(prev => !prev), [])}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  {showPassword ? (
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                    </svg>
-                  ) : (
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                  )}
-                </button>
+                }
+              />
+
+              <div className="flex items-center justify-end">
+                <Link to={ROUTES.FORGOT_PASSWORD} className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+                  Forgot password?
+                </Link>
               </div>
-            </div>
 
-            <div className="flex items-center justify-end">
-              <Link to={ROUTES.FORGOT_PASSWORD} className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
-                Forgot password?
-              </Link>
-            </div>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="loading-spinner"></span>
+                    Signing in...
+                  </span>
+                ) : (
+                  "Sign in"
+                )}
+              </Button>
+            </form>
+          </FormProvider>
 
-            <Button 
-              type="submit" 
-              className="w-full h-11 text-base font-medium" 
-              disabled={loading}
-            >
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <span className="loading-spinner"></span>
-                  Signing in...
-                </span>
-              ) : (
-                "Sign in"
-              )}
-            </Button>
-          </form>
+          <div className="mt-6 text-center">
+            <span className="text-sm text-gray-600">Don't have an account? </span>
+            <Link to={ROUTES.REGISTER} className="font-medium text-blue-600 hover:text-blue-700 transition-colors">
+              Sign up
+            </Link>
+          </div>
 
-          <div className="mt-8 pt-6 border-t border-gray-100">
-            <p className="text-center text-sm text-gray-600">
-              Don't have an account?{" "}
-              <Link to={ROUTES.REGISTER} className="font-medium text-blue-600 hover:text-blue-700 transition-colors">
-                Create account
-              </Link>
+          {/* Demo credentials hint */}
+          <div className="mt-8 p-4 bg-gray-50 rounded-lg">
+            <p className="text-xs text-gray-600 text-center">
+              <span className="font-medium">Demo credentials:</span><br />
+              Admin: admin@example.com / Admin123!<br />
+              User: user@example.com / User123!
             </p>
           </div>
-        </div>
-
-        {/* Demo credentials hint */}
-        <div className="mt-6 text-center">
-          <p className="text-xs text-gray-500">
-            Demo: admin@example.com / Admin123!
-          </p>
         </div>
       </div>
     </div>

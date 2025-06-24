@@ -1,17 +1,29 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { useNavigate, useLocation, Link } from "react-router";
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
+import { FormInput } from "../../shared/components/forms";
+import { otpSchema } from "./schemas/auth.schema";
 import authService from "./services/auth.service";
+import { ROUTES } from "../../shared/constants";
 
 const OtpVerificationPage = () => {
-  const [otp, setOtp] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [email, setEmail] = useState("");
-  
   const navigate = useNavigate();
   const location = useLocation();
-
+  const [email, setEmail] = React.useState("");
+  const [resending, setResending] = React.useState(false);
+  
+  const methods = useForm({
+    resolver: zodResolver(otpSchema),
+    defaultValues: {
+      otp: "",
+    },
+  });
+  
+  const { handleSubmit, setError, setValue, watch, formState: { isSubmitting } } = methods;
+  const otpValue = watch("otp");
+  
   useEffect(() => {
     // Get email from navigation state
     const stateEmail = location.state?.email;
@@ -19,125 +31,127 @@ const OtpVerificationPage = () => {
       setEmail(stateEmail);
     } else {
       // If no email in state, redirect back to forgot password
-      navigate('/forgot-password');
+      navigate(ROUTES.FORGOT_PASSWORD);
     }
   }, [location, navigate]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-
-    if (!otp) {
-      setError("Please enter the OTP");
-      return;
+  
+  // Custom onChange to only allow digits
+  const handleOtpChange = useCallback((e) => {
+    const value = e.target.value.replace(/\D/g, ''); // Only allow digits
+    if (value.length <= 6) {
+      setValue("otp", value);
     }
-
-    if (otp.length !== 6) {
-      setError("OTP must be 6 digits");
-      return;
-    }
-
-    setLoading(true);
-    
+  }, [setValue]);
+  
+  const onSubmit = async (data) => {
     try {
-      const response = await authService.verifyOtp(email, otp);
+      const response = await authService.verifyOtp(email, data.otp);
       
       // Navigate to reset password page with reset token
-      navigate('/reset-password', { 
+      navigate(ROUTES.RESET_PASSWORD, { 
         state: { 
           email, 
           resetToken: response.resetToken 
         } 
       });
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid OTP");
-    } finally {
-      setLoading(false);
+      setError("root", {
+        type: "manual",
+        message: err.response?.data?.message || "Invalid OTP",
+      });
     }
   };
-
+  
   const handleResendOtp = async () => {
-    setError("");
-    setLoading(true);
+    setResending(true);
     
     try {
       await authService.forgotPassword(email);
       alert("New OTP sent to your email!");
     } catch (err) {
-      setError("Failed to resend OTP");
+      setError("root", {
+        type: "manual",
+        message: "Failed to resend OTP",
+      });
     } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOtpChange = (e) => {
-    const value = e.target.value.replace(/\D/g, ''); // Only allow digits
-    if (value.length <= 6) {
-      setOtp(value);
+      setResending(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="max-w-md w-full p-6 bg-white rounded shadow">
-        <h1 className="text-2xl font-bold text-center mb-6">
-          Verify OTP
-        </h1>
-        
-        <p className="text-gray-600 text-center mb-6">
-          Enter the 6-digit OTP sent to {email}
-        </p>
-
-        {error && (
-          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
-            {error}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+      <div className="w-full max-w-md animate-slide-in">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg mb-4">
+            <span className="text-white font-bold text-2xl">A</span>
           </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-          <div className="mb-6">
-            <label className="block text-gray-700 mb-2" htmlFor="otp">
-              OTP Code
-            </label>
-            <input
-              type="text"
-              id="otp"
-              value={otp}
-              onChange={handleOtpChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded text-center text-lg font-mono"
-              placeholder="000000"
-              disabled={loading}
-              maxLength="6"
-            />
-            <p className="text-xs text-gray-500 mt-2">
-              Check your console for the OTP in development mode
-            </p>
-          </div>
-
-          <Button 
-            variant="default" 
-            type="submit" 
-            className="w-full" 
-            disabled={loading || otp.length !== 6}
-          >
-            {loading ? "Verifying..." : "Verify OTP"}
-          </Button>
-        </form>
-
-        <div className="mt-4 text-center">
-          <button
-            onClick={handleResendOtp}
-            className="text-blue-500 hover:text-blue-700"
-            disabled={loading}
-          >
-            Resend OTP
-          </button>
+          <h2 className="text-3xl font-bold text-gray-900">Verify OTP</h2>
+          <p className="mt-2 text-gray-600">Enter the 6-digit code sent to {email}</p>
         </div>
 
-        <div className="mt-4 text-center">
-          <Link to="/login" className="text-gray-500 hover:text-gray-700">
-            Back to Login
-          </Link>
+        <div className="card p-8">
+          {methods.formState.errors.root && (
+            <div className="error-message mb-6 animate-fade-in">
+              {methods.formState.errors.root.message}
+            </div>
+          )}
+
+          <FormProvider {...methods}>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <div className="form-group">
+                <label className="form-label" htmlFor="otp">
+                  OTP Code
+                </label>
+                <input
+                  id="otp"
+                  type="text"
+                  value={otpValue}
+                  onChange={handleOtpChange}
+                  className="form-input text-center text-2xl font-mono tracking-widest"
+                  placeholder="000000"
+                  disabled={isSubmitting}
+                  maxLength="6"
+                  autoComplete="one-time-code"
+                />
+                {methods.formState.errors.otp && (
+                  <p className="mt-1 text-sm text-red-600">{methods.formState.errors.otp.message}</p>
+                )}
+                <p className="text-xs text-gray-500 mt-2 text-center">
+                  Check your console for the OTP in development mode
+                </p>
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-full" 
+                disabled={isSubmitting || otpValue.length !== 6}
+              >
+                {isSubmitting ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="loading-spinner"></span>
+                    Verifying...
+                  </span>
+                ) : (
+                  "Verify OTP"
+                )}
+              </Button>
+            </form>
+          </FormProvider>
+
+          <div className="mt-6 flex flex-col items-center gap-2">
+            <button
+              onClick={handleResendOtp}
+              className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors disabled:opacity-50"
+              disabled={isSubmitting || resending}
+            >
+              {resending ? "Resending..." : "Resend OTP"}
+            </button>
+            
+            <Link to={ROUTES.LOGIN} className="text-sm text-gray-500 hover:text-gray-700 transition-colors">
+              Back to Login
+            </Link>
+          </div>
         </div>
       </div>
     </div>
