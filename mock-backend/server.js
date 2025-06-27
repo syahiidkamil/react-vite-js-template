@@ -24,11 +24,6 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
-});
-
 // Error handling middleware
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
